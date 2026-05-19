@@ -3,10 +3,14 @@ import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { SalesController } from './sales/sales.controller';
-import { SalesModule } from './sales/sales.module';
 import { UsersModule } from './users/users.module';
-import { ProductsModule } from './products/products.module';
+import { ProyeccionesService } from './proyecciones/proyecciones.service';
+import { ProyectosService } from './proyectos/proyectos.service';
+import { ProyectosModule } from './proyectos/proyectos.module';
+import { EmpresasModule } from './empresas/empresas.module';
+import { SelectsModule } from './selects/selects.module';
+import { ProyeccionesModule } from './proyecciones/proyecciones.module';
+import { ProyectosModule } from './proyectos/proyectos.module';
 
 @Module({
   imports: [
@@ -23,11 +27,13 @@ import { ProductsModule } from './products/products.module';
       synchronize: true, // Set to false in production
       logging: true,
     }),
-    SalesModule,
     UsersModule,
-    ProductsModule,
+    ProyectosModule,
+    ProyeccionesModule,
+    SelectsModule,
+    EmpresasModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, ProyeccionesService, ProyectosService],
 })
 export class AppModule {}

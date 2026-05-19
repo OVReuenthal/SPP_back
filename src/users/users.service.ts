@@ -4,26 +4,54 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { LoginDto } from './dto/login.dto';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
+import * as bcrypt from 'bcrypt';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class UsersService {
-  constructor(@InjectDataSource() private dataSource: DataSource) {}
+  constructor(
+    @InjectDataSource() private dataSource: DataSource,
+    private jwtService: JwtService,
+  ) {}
 
   async create(createUserDto: CreateUserDto) {
-    const sql = `INSERT INTO users (user_name, password) VALUES ($1, $2) RETURNING *`;
+    const saltOrRounds = 10;
+    const hashedPassword = await bcrypt.hash(createUserDto.password, saltOrRounds);
+
+    const sql = `INSERT INTO usuarios (user_name, password) VALUES ($1, $2) RETURNING *`;
     return await this.dataSource.query(sql, [
       createUserDto.user_name,
-      createUserDto.password,
+      hashedPassword,
     ]);
   }
 
   async login(loginDto: LoginDto) {
-    const sql = `SELECT * FROM users WHERE user_name = $1 AND password = $2`;
-    const result = await this.dataSource.query(sql, [loginDto.user_name, loginDto.password]);
+    // 1. Fetch user by user_name only
+    const sql = `SELECT * FROM usuarios WHERE user_name = $1`;
+    const result = await this.dataSource.query(sql, [
+      loginDto.user_name,
+    ]);
+    
     if (result.length === 0) {
       return { message: 'Invalid credentials' };
     }
-    return { message: 'Login successful', user: result[0] };
+
+    const user = result[0];
+
+    // 2. Compare the provided password with the hashed password from the DB
+    const isPasswordMatching = await bcrypt.compare(loginDto.password, user.password);
+
+    if (!isPasswordMatching) {
+      return { message: 'Invalid credentials' };
+    }
+
+    const payload = { username: user.user_name };
+    const token = await this.jwtService.signAsync(payload);
+    
+    // 3. Remove the password before returning the user object
+    const { password, ...safeUser } = user;
+    
+    return { message: 'Login successful', user: safeUser, token };
   }
 
   findAll() {
@@ -40,5 +68,14 @@ export class UsersService {
 
   remove(id: number) {
     return `This action removes a #${id} user`;
+  }
+
+  async verifyToken(token: string) {
+    try {
+      const payload = await this.jwtService.verifyAsync(token);
+      return { valid: true, user: payload };
+    } catch (error) {
+      return { valid: false };
+    }
   }
 }

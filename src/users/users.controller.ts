@@ -6,7 +6,10 @@ import {
   Patch,
   Param,
   Delete,
+  Res,
+  Req,
 } from '@nestjs/common';
+import express from 'express';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -22,8 +25,34 @@ export class UsersController {
   }
 
   @Post('login')
-  login(@Body() loginDto: LoginDto) {
-    return this.usersService.login(loginDto);
+  async login(
+    @Body() loginDto: LoginDto,
+    @Res({ passthrough: true }) res: express.Response,
+  ) {
+    const result = await this.usersService.login(loginDto);
+    
+    if (result.token) {
+      res.cookie('Authentication', result.token, {
+        httpOnly: true,
+        // secure: true, // Enable in production over HTTPS
+        sameSite: 'strict',
+        maxAge: 43200000, // 12 hour to match JWT_EXPIRATION
+      });
+      
+      const { token, ...responseData } = result;
+      return responseData;
+    }
+    
+    return result;
+  }
+
+  @Get('validate')
+  async validateSession(@Req() req: express.Request) {
+    const token = req.cookies?.Authentication;
+    if (!token) {
+      return { valid: false };
+    }
+    return this.usersService.verifyToken(token);
   }
 
   @Get()
