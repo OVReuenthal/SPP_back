@@ -33,7 +33,7 @@ export class ProyeccionesController {
     const numDuracion = parseInt(duracion, 10);
     const numMesInicio = parseInt(mesInicio, 10);
 
-    const result = this.proyeccionesService.distribuirEnCampana(numMonto, numDuracion, numMesInicio);
+    const result = this.proyeccionesService.distribuirEnCampana( numMonto, numDuracion, numMesInicio);
     console.log('Resultado de distribucion en campana:', result);
     return result;
   }
