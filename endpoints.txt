@@ -1,0 +1,227 @@
+# Documentación de Endpoints del Sistema
+
+A continuación se detalla la lista de endpoints disponibles en la API, qué generan, los campos necesarios para su uso y los parámetros requeridos.
+
+---
+
+## 1. Usuarios (/users)
+
+**POST /users**
+- **Descripción**: Crea un nuevo usuario.
+- **Body (JSON)**:
+  - `user_name` (string, requerido)
+  - `password` (string, requerido)
+  - `rol` (string, requerido)
+- **Genera**: El registro del usuario recién creado en la base de datos.
+
+**GET /users**
+- **Descripción**: Obtiene la lista de usuarios registrados con su `user_name` y `rol`.
+- **Genera**: Un arreglo de objetos con los campos `user_name` y `rol`.
+
+**POST /users/login**
+- **Descripción**: Inicia sesión y establece la cookie de autenticación.
+- **Body (JSON)**:
+  - `user_name` (string, requerido)
+  - `password` (string, requerido)
+- **Genera**: Retorna los datos del usuario (sin el token explícito en el body si se usa cookie) y establece una cookie `Authentication` con el token JWT válido por 12 horas.
+
+**GET /users/validate**
+- **Descripción**: Valida si la sesión actual es válida.
+- **Requiere**: Cookie `Authentication` con el token JWT activo enviada en las cabeceras de la petición.
+- **Genera**: Un objeto JSON con el estado de la validación, por ejemplo `{ "valid": true, ...datosUsuario }` o `{ "valid": false }`.
+
+**POST /users/logout**
+- **Descripción**: Cierra la sesión del usuario.
+- **Requiere**: Nada (limpia la cookie en el cliente).
+- **Genera**: Un mensaje indicando éxito (`{ message: "Logout successful" }`) y elimina la cookie `Authentication`.
+
+*(Nota: Los endpoints PATCH y DELETE para `/users` se encuentran deshabilitados/comentados en el código actual).*
+
+---
+
+## 2. Proyectos (/proyectos)
+
+### Proyectos Mayores
+
+**POST /proyectos**
+- **Descripción**: Crea un proyecto mayor.
+- **Body (JSON)**:
+  - `elemento_pep` (string, requerido)
+  - `nombre` (string, requerido)
+  - `descripcion` (string, requerido)
+  - `presupuesto` (number, requerido)
+- **Genera**: El registro del proyecto mayor creado.
+
+**GET /proyectos**
+- **Descripción**: Obtiene todos los proyectos mayores.
+- **Genera**: Un arreglo con todos los proyectos mayores existentes.
+
+**GET /proyectos/:elemento_pep**
+- **Descripción**: Obtiene un proyecto mayor específico.
+- **Params URL**: `elemento_pep` (string)
+- **Genera**: El objeto del proyecto mayor correspondiente.
+
+**PATCH /proyectos/:elemento_pep**
+- **Descripción**: Actualiza un proyecto mayor.
+- **Params URL**: `elemento_pep` (string)
+- **Body (JSON)**: Campos opcionales (`nombre`, `descripcion`, `presupuesto`).
+- **Genera**: El registro del proyecto mayor actualizado.
+
+**DELETE /proyectos/:elemento_pep**
+- **Descripción**: Elimina un proyecto mayor.
+- **Params URL**: `elemento_pep` (string)
+- **Genera**: Confirmación de la eliminación.
+
+### Proyectos Menores
+
+**POST /proyectos/menor**
+- **Descripción**: Crea un proyecto menor asociado a un proyecto mayor.
+- **Body (JSON)**:
+  - `elemento_pep_secundario` (string, requerido)
+  - `grafo` (string, requerido)
+  - `nombre` (string, requerido)
+  - `descripcion` (string, requerido)
+  - `elemento_pep` (string, requerido) - PEP del proyecto mayor asociado.
+  - `presupuesto` (number, requerido)
+- **Genera**: El registro del proyecto menor creado.
+
+**GET /proyectos/menor**
+- **Descripción**: Obtiene todos los proyectos menores.
+- **Genera**: Un arreglo con todos los proyectos menores.
+
+**GET /proyectos/menor/:elemento_pep_secundario**
+- **Descripción**: Obtiene un proyecto menor específico.
+- **Params URL**: `elemento_pep_secundario` (string)
+- **Genera**: El objeto del proyecto menor correspondiente.
+
+**GET /proyectos/menor-por-pep/:elemento_pep**
+- **Descripción**: Obtiene todos los proyectos menores asociados a un proyecto mayor específico.
+- **Params URL**: `elemento_pep` (string) - PEP del proyecto mayor.
+- **Genera**: Un arreglo de proyectos menores.
+
+**PATCH /proyectos/menor/:elemento_pep_secundario**
+- **Descripción**: Actualiza un proyecto menor.
+- **Params URL**: `elemento_pep_secundario` (string)
+- **Body (JSON)**: Campos opcionales del POST (`grafo`, `nombre`, `descripcion`, `elemento_pep`, `presupuesto`).
+- **Genera**: El registro del proyecto menor actualizado.
+
+**DELETE /proyectos/menor/:elemento_pep_secundario**
+- **Descripción**: Elimina un proyecto menor.
+- **Params URL**: `elemento_pep_secundario` (string)
+- **Genera**: Confirmación de la eliminación.
+
+---
+
+## 3. Empresas Proveedoras (/empresas)
+
+**POST /empresas**
+- **Descripción**: Crea una nueva empresa proveedora.
+- **Body (JSON)**:
+  - `codigo_proveedor` (string, requerido)
+  - `rif` (string, opcional)
+  - `nombre` (string, opcional)
+- **Genera**: El registro de la empresa creada.
+
+**GET /empresas**
+- **Descripción**: Obtiene todas las empresas.
+- **Genera**: Un arreglo con todas las empresas registradas.
+
+**GET /empresas/:codigo_proveedor**
+- **Descripción**: Obtiene una empresa específica.
+- **Params URL**: `codigo_proveedor` (string)
+- **Genera**: El objeto de la empresa correspondiente.
+
+**PATCH /empresas/:codigo_proveedor**
+- **Descripción**: Actualiza los datos de una empresa.
+- **Params URL**: `codigo_proveedor` (string)
+- **Body (JSON)**: Campos opcionales (`rif`, `nombre`).
+- **Genera**: El registro de la empresa actualizado.
+
+**DELETE /empresas/:codigo_proveedor**
+- **Descripción**: Elimina una empresa.
+- **Params URL**: `codigo_proveedor` (string)
+- **Genera**: Confirmación de la eliminación.
+
+---
+
+## 4. Actividades y Proyecciones (/proyecciones)
+
+**POST /proyecciones/actividad**
+- **Descripción**: Crea una nueva actividad.
+- **Body (JSON)**:
+  - `nombre` (string, requerido)
+  - `descripcion` (string, opcional)
+  - `elemento_pep_secundario` (string, requerido)
+  - `codigo_proveedor` (string, requerido)
+  - `id_estado` (number, requerido)
+  - `id_clase` (number, requerido)
+  - `id_tipo` (number, requerido)
+- **Genera**: El registro de la actividad creada.
+
+**POST /proyecciones/proyeccion**
+- **Descripción**: Crea una proyección financiera para una actividad y genera la distribución inicial.
+- **Body (JSON)**:
+  - `id_actividad` (number, requerido)
+  - `id_distribucion` (number, requerido)
+  - `mes_inicio` (string formato YYYY-MM, requerido)
+  - `monto` (number, requerido)
+  - `duracion` (number, requerido)
+- **Genera**: El registro de la proyección creada, y posiblemente los registros de los meses generados.
+
+**POST /proyecciones/:id_actividad/generar-meses**
+- **Descripción**: Genera los meses de proyección correspondientes a una actividad.
+- **Params URL**: `id_actividad` (number)
+- **Genera**: Los registros de los montos distribuidos mes a mes según la configuración de la proyección.
+
+**GET /proyecciones/distribucion/campana**
+- **Descripción**: Retorna la distribución simulada en formato de campana según un monto y duración (útil para previsualización o cálculos matemáticos en el front).
+- **Query Params**:
+  - `monto` (number/string, requerido)
+  - `duracion` (number/string, requerido)
+  - `mesInicio` (number/string, requerido)
+- **Genera**: Un arreglo con los valores distribuidos mes a mes.
+
+**GET /proyecciones/detalles**
+- **Descripción**: Obtiene todas las actividades incluyendo sus relaciones y detalles internos.
+- **Genera**: Un arreglo de actividades con sus entidades relacionadas anidadas.
+
+**GET /proyecciones**
+- **Descripción**: Obtiene todas las actividades registradas.
+- **Genera**: Un arreglo de actividades.
+
+### Filtros de Actividades/Proyecciones
+
+- **GET /proyecciones/empresa/:codigo_proveedor**: Filtra actividades por el código del proveedor.
+- **GET /proyecciones/elemento/:elemento_pep_secundario**: Filtra actividades por el PEP secundario asociado.
+- **GET /proyecciones/estado/:id_estado**: Filtra actividades por su estado actual.
+- **GET /proyecciones/clase/:id_clase**: Filtra actividades por la clase de costo.
+- **GET /proyecciones/tipo/:id_tipo**: Filtra actividades por tipo de presupuesto.
+
+**GET /proyecciones/:id_actividad**
+- **Descripción**: Obtiene una actividad específica.
+- **Params URL**: `id_actividad` (number)
+- **Genera**: El objeto de la actividad correspondiente.
+
+**PATCH /proyecciones/:id_actividad**
+- **Descripción**: Actualiza los datos de una actividad.
+- **Params URL**: `id_actividad` (number)
+- **Body (JSON)**: Campos opcionales del POST de actividad.
+- **Genera**: El registro actualizado.
+
+**DELETE /proyecciones/:id_actividad**
+- **Descripción**: Elimina una actividad y sus proyecciones asociadas.
+- **Params URL**: `id_actividad` (number)
+- **Genera**: Confirmación de la eliminación.
+
+---
+
+## 5. Selects (Tablas de Catálogo) (/selects)
+
+Todos estos endpoints son de solo lectura y no requieren parámetros en el body ni en la URL. 
+- **Generan**: Un arreglo de objetos para poblar las listas desplegables (selects) correspondientes en el frontend.
+- **Requieren**: Únicamente hacer la petición GET.
+
+- **GET /selects/clases-costos**: Retorna el catálogo de Clases de Costos.
+- **GET /selects/tipo-presupuesto**: Retorna el catálogo de Tipos de Presupuesto.
+- **GET /selects/distribucion**: Retorna el catálogo de Tipos de Distribución (Campana, Lineal, etc).
+- **GET /selects/estado-actividad**: Retorna el catálogo de Estados de la Actividad.

@@ -14,24 +14,24 @@ export class ProyectosController {
     return this.proyectosService.createProyectoMayor(createProyectoMayorDto);
   }
 
-  @Get()
+  @Get('mayor')
   findProyectoMayor() {
     return this.proyectosService.findProyectoMayor();
   }
 
-  @Get(':elemento_pep')
+  @Get('mayor/:elemento_pep')
   findOneProyectoMayor(@Param('elemento_pep') elemento_pep: string) {
     return this.proyectosService.findOneProyectoMayor(elemento_pep);
   }
 
-  @Patch(':elemento_pep')
+  @Patch('mayor/:elemento_pep')
   updateProyectoMayor(@Param('elemento_pep') elemento_pep: string, @Body() updateProyectoMayorDto: UpdateProyectoMayorDto) {
     return this.proyectosService.updateProyectoMayor(elemento_pep, updateProyectoMayorDto);
   }
 
-  @Delete(':elemento_pep')
+  @Delete('mayor/:elemento_pep')
   removeProyectoMayor(@Param('elemento_pep') elemento_pep: string) {
-    return this.proyectosService.removeProyectoMayor(id);
+    return this.proyectosService.removeProyectoMayor(elemento_pep);
   }
 
   @Post('menor')

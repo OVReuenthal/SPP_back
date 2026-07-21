@@ -62,6 +62,7 @@ export class ProyectosService {
   }
 
   async findProyectoMenor() {
+    console.log('findProyectoMenor called');
     return await this.dataSource.query(`SELECT pm.elemento_pep_secundario, pm.nombre, pm.descripcion, pm.presupuesto, pm.grafo, pm.elemento_pep FROM proyecto_menor pm ORDER BY pm.elemento_pep_secundario ASC`);
   }
 

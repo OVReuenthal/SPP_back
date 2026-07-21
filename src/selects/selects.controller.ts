@@ -19,4 +19,9 @@ export class SelectsController {
   getDistribucion() {
     return this.selectsService.getDistribucion();
   }
+
+  @Get('estado-actividad')
+  getEstadoActividad() {
+    return this.selectsService.getEstadoActividad();
+  }
 }

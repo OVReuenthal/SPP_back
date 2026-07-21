@@ -20,4 +20,8 @@ export class SelectsService {
   async getDistribucion() {
     return await this.dataSource.query(`SELECT * FROM distribucion`);
   }
+  
+  async getEstadoActividad() {
+    return await this.dataSource.query(`SELECT * FROM estado_actividad`);
+  }
 }

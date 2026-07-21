@@ -10,7 +10,6 @@ import { ProyectosModule } from './proyectos/proyectos.module';
 import { EmpresasModule } from './empresas/empresas.module';
 import { SelectsModule } from './selects/selects.module';
 import { ProyeccionesModule } from './proyecciones/proyecciones.module';
-import { ProyectosModule } from './proyectos/proyectos.module';
 
 @Module({
   imports: [
