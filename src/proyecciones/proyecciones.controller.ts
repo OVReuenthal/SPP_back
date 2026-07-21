@@ -20,7 +20,7 @@ export class ProyeccionesController {
 
   @Post(':id_actividad/generar-meses')
   generarMesesProyeccion(@Param('id_actividad') id_actividad: string) {
-    return this.proyeccionesService.generarMesesProyeccion(+id_actividad);
+    return this.proyeccionesService.generarMesesProyeccion( +id_actividad);
   }
 
   @Get('distribucion/campana')
